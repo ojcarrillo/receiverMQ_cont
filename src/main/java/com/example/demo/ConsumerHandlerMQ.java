@@ -19,15 +19,13 @@ import com.rabbitmq.client.MessageProperties;
 
 @Component
 public class ConsumerHandlerMQ implements CommandLineRunner {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(ConsumerHandlerMQ.class);
 
 	private final static String QUEUE_NAME = "mq_movctas";
-	private final static String RETRY_EXCHANGE = "re_movctas";
+	private final static String RETRY_EXCHANGE = "RetryMovctas";
+	private final static String HOST = "dk_rabbitmq";
 
-	@Autowired
-	AgregarDatosXML proc;
-	
 	@Override
 	public void run(String[] args) throws Exception {
 		/* configura la conexion al servidor de colas */
@@ -35,7 +33,7 @@ public class ConsumerHandlerMQ implements CommandLineRunner {
 		factory.setUsername("b2c_client");
 		factory.setPassword("SuperPassword000");
 		factory.setHost("dk_rabbitmq");
-		//factory.setHost("35.203.110.236");
+		// factory.setHost("35.203.110.236");
 		factory.setPort(5672);
 		/* abre la conexion */
 		Connection connection = factory.newConnection();
@@ -50,8 +48,8 @@ public class ConsumerHandlerMQ implements CommandLineRunner {
 					byte[] body) throws IOException {
 				String message = new String(body, "UTF-8");
 				log.info(" [x] Received '" + message + "'");
-				try {					
-					proc.aggregarAlXML(message);
+				try {
+					AgregarDatosXML.aggregarAlXML(message);
 				} catch (Exception e) {
 					log.error("errro-------------------------------se vuelve a poner en la cola para reintento");
 					channel.basicPublish(RETRY_EXCHANGE, "", MessageProperties.PERSISTENT_TEXT_PLAIN,
@@ -62,5 +60,4 @@ public class ConsumerHandlerMQ implements CommandLineRunner {
 		channel.basicConsume(QUEUE_NAME, true, consumer);
 	}
 
-	
 }

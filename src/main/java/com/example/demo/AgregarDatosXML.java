@@ -1,17 +1,14 @@
 package com.example.demo;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.EnumSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -34,10 +31,10 @@ public class AgregarDatosXML {
 	private final static String RECEIPTS = "recepits.txt";
 	private static final String ENDLINE = "\r\n";
 	
-	public void aggregarAlXML(String msg) {
+	public static void aggregarAlXML(String msg) throws IOException {
 		/* primer caracter determina el tipo de transaccion B,I,R */
 		String opc = msg.substring(0, 1);
-		String msgAdd = msg.substring(1, 51); 
+		String msgAdd = msg.substring(1, msg.length()); 
 		String fileName = null;
 		/* arma el nombre del archivo para agregar el mensaje */
 		if("B".equals(opc)) {
@@ -50,21 +47,15 @@ public class AgregarDatosXML {
 			/* Recepit */
 			fileName = RECEIPTS;
 		}
-		/* agrega la transaccion al archivo correspondiente */
-		try {
-			if(fileName!=null) {
-				aggMsg(msgAdd, PATH + fileName);
-			} else {
-				log.error("=============> formato no valido!!!");
-			}
-		}
-		catch (Exception e) {
-			log.error("=============> error de escritura!!! "+e.getMessage());
-			e.printStackTrace();
+		/* agrega la transaccion al archivo correspondiente */		
+		if(fileName!=null) {
+			aggMsg(msgAdd, PATH + fileName);
+		} else {
+			log.error("=============> formato no valido!!!");
 		}
 	}
 	
-	public void aggMsg(String msgAdd, String fileName) throws IOException {
+	public static void aggMsg(String msgAdd, String fileName) throws IOException {
 		File file = new File(fileName);
 		/* valida si existe el archivo, sino lo crea */
 		if(!file.exists()) {			
